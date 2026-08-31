@@ -66,9 +66,11 @@ graph TD
 ## 4. Module Breakdown
 
 ### `core` (Layer 0 — foundation, depends on nothing)
-- **Responsibility:** school identity, academic year/semester, the Admin user model, roles/permissions, audit log.
-- **Key models:** `School` (NPSN, NSS, name, address, level SD/SMP/SMA/SMK, kepala sekolah, logo), `AcademicYear` (label e.g. "2025/2026", semester GANJIL/GENAP, `is_active`), `User` (email-based, no username), `AuditLog`.
+- **Responsibility:** school identity, academic year/semester, the Admin user model, roles/permissions, audit log, and personnel profiles for non-domain roles.
+- **Key models:** `School` (NPSN, NSS, name, address, level SD/SMP/SMA/SMK, kepala sekolah, logo), `AcademicYear` (label e.g. "2025/2026", semester GANJIL/GENAP, `is_active`), `User` (email-based, no username), `AuditLog`, `PersonnelProfile` (staff, nurse, librarian, security, etc.).
 - **Exposes:** `get_active_academic_year()`, `get_school_profile()`, user provisioning functions.
+
+> **On `PersonnelProfile` vs. domain models:** A role like Nurse, Librarian, or Security has no rich domain data beyond contact info and role type — they don't need a separate Django app. `PersonnelProfile` (one model in `core`) handles these as a `TextChoices` enum. Promote a role to its own Django app only when it develops genuine domain complexity (e.g., Nurse needs medical certificates, Librarian needs book inventory). See `docs/data-model.md` for the schema.
 
 ### `academic_structure` (Layer 1, depends on `core`)
 - **Responsibility:** grade levels (Tingkat), majors, subjects, and class sections — the structural data everything else attaches to. This is also where Grade *creation* happens (onboarding's "Create Grades" step, and later ad hoc additions) — as distinct from Grade *Management* (Layer 4), which is the assignment menu, not the CRUD.

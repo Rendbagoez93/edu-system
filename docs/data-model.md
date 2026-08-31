@@ -76,6 +76,32 @@ class AuditLog(models.Model):
 - `object_id` is `CharField` (supports UUID, int, and string PKs)
 - `changes` is `None` for DELETE actions; `{"field": [null, "new_value"]}` for CREATE
 
+### PersonnelProfile (Future — not yet implemented)
+
+Non-domain personnel: Admin Staff, Nurse, Librarian, Security, etc. — roles that have no rich domain data beyond contact info and role type. One model in `core`, roles as `TextChoices`. Promote to a dedicated Django app only when the role develops genuine domain complexity (e.g., Nurse needs medical certificates → `health` app with `NurseProfile`; Librarian manages inventory → `library` app).
+
+```python
+class PersonnelProfile(TimestampMixin, SoftDeleteMixin, models.Model):
+    class Role(TextChoices):
+        ADMIN_STAFF = "ADMIN_STAFF", "Admin Staff"
+        NURSE = "NURSE", "Nurse"
+        LIBRARIAN = "LIBRARIAN", "Librarian"
+        SECURITY = "SECURITY", "Security"
+        # extend as needed
+
+    user = models.OneToOneField("core.User", on_delete=models.CASCADE,
+                                related_name="personnel_profile")
+    role = models.CharField(max_length=20, choices=Role.choices)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)  # role-specific data (license no., shift, etc.)
+```
+
+- **Unique constraint:** `(user)` — one profile per user account
+- `notes` is intentionally free-form to absorb role-specific data that doesn't warrant a separate app yet
+- Do **not** add fields here that belong in a dedicated domain app — if a role needs rich domain data, it gets its own app, not more columns on `PersonnelProfile`
+
 ---
 
 ## apps/academic_structure/models.py
@@ -434,4 +460,5 @@ class SoftDeleteMixin(models.Model):
 | `Score` | `entered_by` | `User` | ↓ L5→L0 |
 | `ReportCard` | `student` | `Student` | ↓ L5→L2 |
 | `ReportCard` | `academic_year` | `AcademicYear` | ↓ L5→L0 |
+| `PersonnelProfile` | `user` | `User` | ↓ L0→L0 |
 | `OnboardingProgress` | `school` | `School` | ↓ orch→L0 |

@@ -45,6 +45,17 @@ If you are writing code and the word "grade" appears where a score, mark, or mar
 | AuditLog target | `content_type` + `object_id` | `ForeignKey(ContentType)` + `CharField` | |
 | AuditLog changes | `changes` | `JSONField` | Before/after snapshot |
 
+### core — PersonnelProfile (Future)
+
+| Concept | Field name | Type | Notes |
+|---|---|---|---|
+| Linked user account | `user` | `OneToOneField(User)` | One profile per user |
+| Personnel role | `role` | `CharField` + `TextChoices` | `ADMIN_STAFF` / `NURSE` / `LIBRARIAN` / `SECURITY` |
+| Department | `department` | `CharField(100)` | Nullable |
+| Contact phone | `contact_phone` | `CharField(20)` | Nullable |
+| Address | `address` | `TextField` | Nullable |
+| Role-specific notes | `notes` | `TextField` | Nullable; absorb role-specific data before promoting to dedicated app |
+
 ### academic_structure
 
 | Concept | Field name | Type | Notes |
@@ -199,6 +210,12 @@ class OnboardingStatus(TextChoices):
     IN_PROGRESS = "IN_PROGRESS", "In Progress"
     COMPLETE = "COMPLETE", "Complete"
     SKIPPED = "SKIPPED", "Skipped"
+
+class PersonnelRole(TextChoices):  # Future — not yet implemented
+    ADMIN_STAFF = "ADMIN_STAFF", "Admin Staff"
+    NURSE = "NURSE", "Nurse"
+    LIBRARIAN = "LIBRARIAN", "Librarian"
+    SECURITY = "SECURITY", "Security"
 ```
 
 ---
