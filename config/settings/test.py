@@ -21,6 +21,7 @@ ALLOWED_HOSTS = env_common.allowed_hosts
 BASE_DIR = env_common.base_dir
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+AUTH_USER_MODEL = "core.User"
 
 DATABASES = {
     "default": {
@@ -42,6 +43,10 @@ INSTALLED_APPS = [
     "django_filters",
     "django_celery_beat",
     "apps.shared.apps.SharedConfig",
+    "apps.core.apps.CoreConfig",
+    "apps.academic_structure.apps.AcademicStructureConfig",
+    "apps.teachers.apps.TeachersConfig",
+    "apps.students.apps.StudentsConfig",
 ]
 
 MIDDLEWARE = [
