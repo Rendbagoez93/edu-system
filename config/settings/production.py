@@ -67,7 +67,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     # Layer 0 — Foundation
     "core.apps.CoreConfig",
-    "shared.apps.SharedConfig",
+    "apps.shared.apps.SharedConfig",
     # Layer 1 — Structure
     "academic_structure.apps.AcademicStructureConfig",
     # Layer 2 — Entities

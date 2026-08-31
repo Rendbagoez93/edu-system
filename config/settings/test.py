@@ -1,23 +1,19 @@
-from config.settings.databases import db_settings
+"""Test settings — mirrors `local.py` with the shared app enabled.
+
+Referenced by `pyproject.toml`'s `DJANGO_SETTINGS_MODULE = "config.settings.test"`.
+See `docs/testing-guide.md` for the full test conventions.
+"""
+
 from config.settings.envcommon import env_common
 from config.settings.logging import configure_logging
 
-# Activate logging first
 configure_logging(debug=True)
-
-# ---------------------------------------------------------------------------
-# Environment guard — this file is only for local use
-# ---------------------------------------------------------------------------
 
 if not env_common.is_local:
     raise RuntimeError(
-        "config/settings/local.py is for local development only. "
-        "Use config/settings/production.py for production deployments."
+        "config/settings/test.py is for local tests only. "
+        "Use config/settings/local.py or config/settings/production.py for runtime."
     )
-
-# ---------------------------------------------------------------------------
-# Core
-# ---------------------------------------------------------------------------
 
 SECRET_KEY = env_common.secret_key
 DEBUG = True
@@ -25,53 +21,27 @@ ALLOWED_HOSTS = env_common.allowed_hosts
 BASE_DIR = env_common.base_dir
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# AUTH_USER_MODEL = "core.User"  # uncomment once core.User is defined
-
-# ---------------------------------------------------------------------------
-# Database — SQLite (see databases.py)
-# ---------------------------------------------------------------------------
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": db_settings.sqlite_name,
+        "NAME": ":memory:",
         "ATOMIC_REQUESTS": False,
     }
 }
 
-# ---------------------------------------------------------------------------
-# Installed apps
-# ---------------------------------------------------------------------------
-
 INSTALLED_APPS = [
-    # Django built-ins
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third-party
     "rest_framework",
     "drf_spectacular",
     "django_filters",
     "django_celery_beat",
-    # # Layer 0 — Foundation
-    # "core.apps.CoreConfig",
     "apps.shared.apps.SharedConfig",
-    # # Layer 1 — Structure
-    # "academic_structure.apps.AcademicStructureConfig",
-    # # Layer 2 — Entities
-    # "teachers.apps.TeachersConfig",
-    # "students.apps.StudentsConfig",
-    # # Layer 3 — Scheduling
-    # "schedules.apps.SchedulesConfig",
-    # # Layer 4 — Assignment
-    # "grade_management.apps.GradeManagementConfig",
-    # # Layer 5 — Scoring
-    # "assessment.apps.AssessmentConfig",
-    # # Orchestrator
-    # "onboarding.apps.OnboardingConfig",
 ]
 
 MIDDLEWARE = [
@@ -102,54 +72,27 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-ASGI_APPLICATION = "config.asgi.application"
-
-# ---------------------------------------------------------------------------
-# Internationalization
-# ---------------------------------------------------------------------------
 
 LANGUAGE_CODE = "id-ID"
 TIME_ZONE = env_common.app_timezone
 USE_I18N = True
 USE_TZ = True
 
-# ---------------------------------------------------------------------------
-# Static / Media files
-# ---------------------------------------------------------------------------
-
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
-# ---------------------------------------------------------------------------
-# Email — console backend for local dev
-# ---------------------------------------------------------------------------
-
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 DEFAULT_FROM_EMAIL = "noreply@edusys.local"
-
-# ---------------------------------------------------------------------------
-# Caches — dummy cache for local dev (no Redis required)
-# ---------------------------------------------------------------------------
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-snowflake",
+        "LOCATION": "test-cache",
     }
 }
 
-# ---------------------------------------------------------------------------
-# Celery — eager mode: tasks run synchronously, no broker needed
-# ---------------------------------------------------------------------------
-
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
-
-# ---------------------------------------------------------------------------
-# REST Framework
-# ---------------------------------------------------------------------------
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -172,10 +115,9 @@ REST_FRAMEWORK = {
     ],
 }
 
-# drf-spectacular
 SPECTACULAR_SETTINGS = {
     "TITLE": env_common.app_name,
-    "DESCRIPTION": "School Management System API — local development",
+    "DESCRIPTION": "School Management System API — tests",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
@@ -191,28 +133,13 @@ SPECTACULAR_SETTINGS = {
     ],
 }
 
-# ---------------------------------------------------------------------------
-# Security — relaxed for local dev
-# ---------------------------------------------------------------------------
-
-SECURE_BROWSER_XSS_FILTER = False
-SECURE_CONTENT_TYPE_NOSNIFF = False
-X_FRAME_OPTIONS = "SAMEORIGIN"
-
-# ---------------------------------------------------------------------------
-# File upload settings
-# ---------------------------------------------------------------------------
-
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
-
-# ---------------------------------------------------------------------------
-# Password validation
-# ---------------------------------------------------------------------------
-
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+# Tell pytest-django not to create migrations for the shared app — it has
+# no concrete models of its own, only mixins.
+MIGRATION_MODULES = {"shared": None}

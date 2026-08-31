@@ -5,6 +5,8 @@ import sys
 import structlog
 from structlog.types import Processor
 
+from apps.shared.logging import redact_pii
+
 
 def configure_logging(debug: bool = False) -> None:
     log_level = logging.DEBUG if debug else logging.INFO
@@ -16,6 +18,10 @@ def configure_logging(debug: bool = False) -> None:
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
+        # Runs last in the pre-render chain so non-PII context is already
+        # in place. Replaces known PII fields with "[REDACTED]" — see
+        # `apps/shared/constants.py` for the field set.
+        redact_pii,
     ]
 
     if debug:
