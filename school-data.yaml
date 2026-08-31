@@ -1,0 +1,101 @@
+# =============================================================================
+# School Identity & Configuration
+# =============================================================================
+# This file contains all school-specific identity and configuration data.
+# It is read by the application at startup and used to populate school-related
+# models (School identity, AcademicYear, etc.).
+#
+# DO NOT include any secrets (passwords, API keys) here — use .env for those.
+# =============================================================================
+
+school:
+  # Basic identity
+  name: "Sekolah Dasar Negeri 1"
+  short_name: "SDN 1"
+  npsn: "12345678"           # NPSN (Nomor Pokok Sekolah Nasional) — 8 digits
+  nss: ""                    # NSS (Nomor Statistik Sekolah) — optional
+  nis: ""                    # NIS (Nomor Induk Sekolah) — optional
+
+  # Address
+  address:
+    street: "Jl. Raya Sekolah No. 1"
+    village: "Desa Contoh"
+    district: "Kecamatan Contoh"
+    city: "Kota Contoh"
+    province: "Provinsi Contoh"
+    postal_code: "12345"
+    coordinates:
+      latitude: 0.0
+      longitude: 0.0
+
+  # Contact information
+  contact:
+    phone: "+62-21-12345678"
+    fax: "+62-21-12345679"
+    email: "info@sdn1-contoh.sch.id"
+    website: "https://sdn1-contoh.sch.id"
+
+  # Operational details
+  school_level: "SD"         # SD, SMP, SMA, SMK
+  status: "negeri"            # negeri, swasta
+  accreditation:
+    status: "A"              # A, B, C, Unggul, Baik
+    number: ""
+    valid_until: ""          # ISO date, e.g. "2028-12-31"
+
+  # Academic calendar
+  academic_year:
+    current: "2025/2026"
+    start_month: 7           # July
+    end_month: 6             # June (following year)
+    semesters: 2             # Number of semesters per year
+
+  # Grading system
+  grading:
+    grade_scale: "numeric"    # numeric, letter, description
+    min_passing_score: 70    # Minimum score to pass (numeric scale)
+    report_format: "smp_2013" # Template format: smp_2013, sma_2016, k13, kurikulum_merdeka
+
+  # Terms / semesters
+  terms:
+    - name: "Semester Ganjil"
+      code: "ganjil"
+      months: [7, 8, 9, 10, 11, 12]
+    - name: "Semester Genap"
+      code: "genap"
+      months: [1, 2, 3, 4, 5, 6]
+
+  # Identity fields for Indonesian education system
+  education_level: "dasar"   # dasar, menengah_pertama, menengah_atas
+  ministry_code: "KEMENDIKBUD"
+  regional_code: "01"         # Regional/province code
+  school_logo_url: ""         # URL or path to school logo
+  stamp_url: ""               # URL or path to school stamp image
+
+# Principal / Headmaster
+headmaster:
+  name: ""
+  nip: ""                     # NIP (Nomor Induk Pegawai)
+  nuptk: ""                   # NUPTK (Nomor Unik Pendidik dan Tenaga Kependidikan)
+  gender: ""
+  phone: ""
+  email: ""
+
+# Administrative officer (for system admin)
+admin_officer:
+  name: ""
+  nip: ""
+  phone: ""
+  email: ""
+
+# System configuration
+system:
+  timezone: "Asia/Jakarta"
+  language: "id-ID"
+  currency: "IDR"
+  date_format: "dd-MM-yyyy"
+  datetime_format: "dd-MM-yyyy HH:mm"
+  number_format:
+    decimal_separator: ","
+    thousands_separator: "."
+    decimals: 2
