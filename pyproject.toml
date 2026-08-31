@@ -126,7 +126,6 @@ markers = [
 django_find_project = false
 
 filterwarnings = [
-    "ignore::django.utils.deprecation.RemovedInDjango61Warning",
     "ignore::django.utils.deprecation.RemovedInDjango70Warning",
 ]
 

@@ -25,7 +25,7 @@ ALLOWED_HOSTS = env_common.allowed_hosts
 BASE_DIR = env_common.base_dir
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# AUTH_USER_MODEL = "core.User"  # uncomment once core.User is defined
+AUTH_USER_MODEL = "core.User"
 
 # ---------------------------------------------------------------------------
 # Database — SQLite (see databases.py)
@@ -56,22 +56,14 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_filters",
     "django_celery_beat",
-    # # Layer 0 — Foundation
-    # "core.apps.CoreConfig",
+    # Layer 0 — Foundation
     "apps.shared.apps.SharedConfig",
-    # # Layer 1 — Structure
-    # "academic_structure.apps.AcademicStructureConfig",
-    # # Layer 2 — Entities
-    # "teachers.apps.TeachersConfig",
-    # "students.apps.StudentsConfig",
-    # # Layer 3 — Scheduling
-    # "schedules.apps.SchedulesConfig",
-    # # Layer 4 — Assignment
-    # "grade_management.apps.GradeManagementConfig",
-    # # Layer 5 — Scoring
-    # "assessment.apps.AssessmentConfig",
-    # # Orchestrator
-    # "onboarding.apps.OnboardingConfig",
+    "apps.core.apps.CoreConfig",
+    # Layer 1 — Structure
+    "apps.academic_structure.apps.AcademicStructureConfig",
+    # Layer 2 — Entities
+    "apps.teachers.apps.TeachersConfig",
+    "apps.students.apps.StudentsConfig",
 ]
 
 MIDDLEWARE = [

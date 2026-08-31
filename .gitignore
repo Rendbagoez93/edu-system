@@ -21,6 +21,7 @@ db.sqlite3
 /staticfiles/
 htmlcov/
 .coverage
+coverage.xml
 *.pyc
 *.pyo
 

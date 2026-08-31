@@ -66,21 +66,13 @@ INSTALLED_APPS = [
     "django_filters",
     "django_celery_beat",
     # Layer 0 — Foundation
-    "core.apps.CoreConfig",
     "apps.shared.apps.SharedConfig",
+    "apps.core.apps.CoreConfig",
     # Layer 1 — Structure
-    "academic_structure.apps.AcademicStructureConfig",
+    "apps.academic_structure.apps.AcademicStructureConfig",
     # Layer 2 — Entities
-    "teachers.apps.TeachersConfig",
-    "students.apps.StudentsConfig",
-    # Layer 3 — Scheduling
-    "schedules.apps.SchedulesConfig",
-    # Layer 4 — Assignment
-    "grade_management.apps.GradeManagementConfig",
-    # Layer 5 — Scoring
-    "assessment.apps.AssessmentConfig",
-    # Orchestrator
-    "onboarding.apps.OnboardingConfig",
+    "apps.teachers.apps.TeachersConfig",
+    "apps.students.apps.StudentsConfig",
 ]
 
 MIDDLEWARE = [
