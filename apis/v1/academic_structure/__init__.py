@@ -1,0 +1,1 @@
+"""Academic structure API views."""

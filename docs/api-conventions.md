@@ -379,6 +379,120 @@ Until roles beyond HEADMASTER/ADMIN are implemented, all authenticated users get
 
 ---
 
+## 10. API Code Organization
+
+### Where API Code Lives
+
+All API endpoints are organized under `apis/v1/{app}/`:
+
+```
+apis/v1/
+├── __init__.py
+├── core/
+│   ├── __init__.py
+│   ├── urls.py      # API URL patterns for core
+│   └── views.py     # API viewsets for core
+├── academic_structure/
+│   ├── __init__.py
+│   ├── urls.py
+│   └── views.py
+├── teachers/
+│   ├── __init__.py
+│   ├── urls.py
+│   └── views.py
+└── students/
+    ├── __init__.py
+    ├── urls.py
+    └── views.py
+```
+
+### Root URL Configuration
+
+`config/urls.py` includes the API router at the `/api/v1/` prefix:
+
+```python
+# config/urls.py
+from django.urls import include, path
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/v1/", include("apis.v1.core.urls")),
+    path("api/v1/", include("apis.v1.academic_structure.urls")),
+    path("api/v1/", include("apis.v1.teachers.urls")),
+    path("api/v1/", include("apis.v1.students.urls")),
+    # web pages
+    path("", include("apps.core.urls")),
+]
+```
+
+### App Views: API vs. Web
+
+Each app maintains two types of views:
+
+| Type | Location | Purpose |
+|---|---|---|
+| API viewsets | `apis/v1/{app}/views.py` | DRF ViewSets for the REST API |
+| Web views | `apps/{app}/views.py` | Django TemplateViews for server-rendered pages |
+
+Viewsets are registered only in `apis/v1/{app}/urls.py` — never in `apps/{app}/urls.py`.
+
+### Example: Adding a New API Endpoint
+
+1. Create `apis/v1/{app}/views.py` (if new) and add the ViewSet
+2. Create `apis/v1/{app}/urls.py` (if new) and register the router
+3. Import and include `apis/v1/{app}/urls` in `config/urls.py`
+4. No changes to `apps/{app}/urls.py` (web pages only)
+
+### Example: App File Contents
+
+```python
+# apis/v1/students/urls.py
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+
+from .views import EnrollmentViewSet, StudentViewSet
+
+router = DefaultRouter()
+router.register("students", StudentViewSet, basename="student")
+router.register("enrollments", EnrollmentViewSet, basename="enrollment")
+
+urlpatterns = [
+    path("", include(router.urls)),
+]
+```
+
+```python
+# apis/v1/students/views.py
+from rest_framework import viewsets
+
+from apps.students.models import Enrollment, Student
+from apps.students.serializers import EnrollmentSerializer, StudentSerializer
+
+
+class StudentViewSet(viewsets.ModelViewSet):
+    ...
+```
+
+```python
+# apps/students/views.py  (web page views only)
+from django.views.generic import TemplateView
+
+
+class StudentListPageView(TemplateView):
+    template_name = "students/list.html"
+```
+
+```python
+# apps/students/urls.py  (web pages only)
+from django.urls import path
+
+from .views import StudentListPageView
+
+urlpatterns = [
+    path("students/", StudentListPageView.as_view(), name="student-list"),
+]
+```
+
 ## 9. CORS
 
 `django-cors-headers` is installed but not yet configured. Until CORS settings are added, the API is not accessible from a browser-based frontend running on a different origin. Configure `CORS_ALLOWED_ORIGINS` in `production.py` before deploying.
