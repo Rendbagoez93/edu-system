@@ -1,15 +1,8 @@
-"""Teacher URL routing."""
+"""Teachers web page URL routing."""
 
 from __future__ import annotations
 
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+# Web page routes for teachers are defined here.
+# API routes are in apis/v1/teachers/urls.py
 
-from apps.teachers.views import TeacherViewSet
-
-router = DefaultRouter()
-router.register("teachers", TeacherViewSet, basename="teacher")
-
-urlpatterns = [
-    path("", include(router.urls)),
-]
+urlpatterns = []

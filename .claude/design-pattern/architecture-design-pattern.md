@@ -110,6 +110,66 @@ graph TD
 ### `shared` (Layer 0 — foundation, depends on nothing)
 - **Responsibility:** cross-cutting utilities used by every other app — base model mixins (timestamps, soft delete), Excel/report generation helpers, notification dispatch, service/selector base classes, structlog PII-redaction processors.
 
+## 11. API Architecture
+
+The codebase maintains a clear separation between **API endpoints** (for mobile app, SPA frontend, or third-party integration) and **web page routing** (for server-rendered pages).
+
+### Directory Structure
+
+```
+edu-system/
+├── apis/
+│   └── v1/
+│       ├── __init__.py
+│       ├── core/
+│       │   ├── __init__.py
+│       │   ├── urls.py      # API URL routing for core
+│       │   └── views.py     # API viewsets for core
+│       ├── academic_structure/
+│       │   ├── __init__.py
+│       │   ├── urls.py
+│       │   └── views.py
+│       ├── teachers/
+│       │   ├── __init__.py
+│       │   ├── urls.py
+│       │   └── views.py
+│       ├── students/
+│       │   ├── __init__.py
+│       │   ├── urls.py
+│       │   └── views.py
+│       └── ...
+├── apps/
+│   └── {app_name}/
+│       ├── urls.py          # Web page URLs only (no API routes)
+│       └── views.py         # Web page views only (TemplateViews, etc.)
+└── config/
+    └── urls.py              # Root URL routing
+```
+
+### Routing Convention
+
+| Concern | Location | Example |
+|---|---|---|
+| REST API endpoints | `apis/v1/{app}/urls.py` | `GET /api/v1/core/schools/` |
+| Web pages | `apps/{app}/urls.py` | `GET /dashboard/` |
+
+- **`apis/v1/{app}/`** — API routing per app. Each app's API viewsets and URL patterns live here.
+- **`apps/{app}/`** — Web page routing only. Contains `TemplateView`, `ListView`, etc. for server-rendered pages. No DRF routers or API viewsets.
+
+### Why This Split?
+
+- **Single source of truth per concern** — API routing is in `apis/v1/`, web page routing is in `apps/`.
+- **Clean layer separation** — API consumers (mobile app, SPA) don't mix with web page concerns.
+- **Easier future extraction** — if the API is extracted to a separate service later, `apis/v1/` is the boundary.
+
+### Migration Note
+
+Existing app-level `urls.py` files that contain DRF routers and viewsets should be migrated:
+1. Move API viewsets → `apis/v1/{app}/views.py`
+2. Move API URL patterns → `apis/v1/{app}/urls.py`
+3. Keep only web page routes in `apps/{app}/urls.py`
+4. Update `config/urls.py` to include `apis/v1/{app}/urls` per app
+
 ## 5. Terminology
 
 "Grade" has one meaning throughout this system: Tingkat/Kelas (grade level), never a score or mark. **Grade Management** is the assignment menu — Tingkat ↔ Teacher ↔ Subject ↔ Schedule — owned by `grade_management`. **Class Management** is the Kelas (class section) CRUD, owned by `academic_structure`. **Assessment** is the separate menu that records marks (Nilai) — its own module, never merged into `grade_management`. Keep these three separate in the UI and in code even though the first two both ultimately touch `GradeLevel`.
